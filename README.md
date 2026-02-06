@@ -8,15 +8,23 @@
 graph TD
     A[User] -->|Sign Up / Login| B[Dashboard]
     B -->|Create/Select Role| C[Interview Setup]
-    C -->|Start Session| D[Interview Interface]
-    D -->|Voice/Text Answer| E[AI Processing]
-    E -->|Evaluate & Score| F[Real-time Feedback]
-    F -->|Next Question| D
-    D -->|Complete Interview| G[Comprehensive Report]
-    G -->|Analytics & History| B
+    C -->|Manual Config| D[Interview Interface]
+    C -->|Resume Upload| E[Resume Analysis]
+    E -->|Generate Plan| D
+    D -->|Start Session| F[Voice/Text Interaction]
+    F -->|AI Evaluation| G[Real-time Feedback]
+    G -->|Next Question| D
+    D -->|Complete Interview| H[Comprehensive Report]
+    H -->|Analytics & History| B
 ```
 
 ## ✨ Key Features
+
+### 📄 AI Resume Analysis (New)
+- **Resume Parsing**: Upload your PDF resume to generate a personalized interview plan
+- **Experience-Based Questions**: Questions tailored to your specific years of experience (Intern to Architect)
+- **Project Deep Dive**: AI extracts your projects and asks in-depth questions about them
+- **Skill Verification**: Validates the skills listed on your resume
 
 ### 🤖 AI-Powered Interview System
 - **Dynamic Question Generation**: Leverages Groq AI to generate contextually relevant technical questions
