@@ -2,7 +2,19 @@
 
 **PrepWise** is an intelligent, adaptive interview preparation platform that provides personalized technical interview practice with real-time AI evaluation, dynamic difficulty adjustment, and comprehensive performance analytics. Master your interview skills with AI-powered practice sessions.
 
-![Login Page](./img/loginpage.png)
+## 🔄 Application Workflow
+
+```mermaid
+graph TD
+    A[User] -->|Sign Up / Login| B[Dashboard]
+    B -->|Create/Select Role| C[Interview Setup]
+    C -->|Start Session| D[Interview Interface]
+    D -->|Voice/Text Answer| E[AI Processing]
+    E -->|Evaluate & Score| F[Real-time Feedback]
+    F -->|Next Question| D
+    D -->|Complete Interview| G[Comprehensive Report]
+    G -->|Analytics & History| B
+```
 
 ## ✨ Key Features
 
@@ -13,16 +25,12 @@
 - **Smart Follow-up Questions**: Generates follow-up questions when answers need clarification
 
 ### 📊 Dashboard & Analytics
-![Dashboard](./img/dashboard.png)
-
 - **Performance Overview**: Track average scores across all completed interviews
 - **Statistics**: Total interviews, completed count, and performance trends
 - **Quick Actions**: Start new interviews, view history, and access bookmarks
 - **Progress Tracking**: Monitor improvement over time
 
 ### 🎭 Custom Role Creation
-![Adding New Role](./img/addingnewrole.png)
-
 - **Role Builder**: Create custom interview roles with specific skills and requirements
 - **Skill Selection**: Choose from technical, behavioral, and domain-specific skills
 - **Difficulty Levels**: Easy, Medium, Hard
@@ -31,8 +39,6 @@
 - **Category System**: Technical, HR, Behavioral interviews
 
 ### 🌐 Public Role Marketplace
-![Public Roles](./img/publicrole.png)
-
 - **Popular Roles**: Browse trending interview templates
 - **Recent Additions**: Discover newly created roles
 - **My Roles Management**: 
@@ -42,8 +48,6 @@
 - **Role Usage Counter**: See how many times a role has been used
 
 ### 💬 Interactive Interview Interface
-![Question Sample](./img/questionsample.png)
-
 - **Voice Recording**: Record answers via microphone
 - **Text Input**: Type responses directly
 - **Audio Transcription**: Automatic speech-to-text conversion
@@ -53,8 +57,6 @@
 - **Progress Indicator**: Visual progress through interview
 
 ### 📚 Interview History
-![History](./img/history.png)
-
 - **Complete Archive**: Access all past interviews
 - **Score Display**: View performance scores for each interview
 - **Date Tracking**: Organized chronologically
@@ -62,16 +64,12 @@
 - **Filter & Search**: Find specific interviews quickly
 
 ### 🔖 Bookmark System
-![Bookmarks](./img/bookmark.png)
-
 - **Save Questions**: Bookmark challenging questions during interviews
 - **Review Later**: Access all bookmarked questions in one place
 - **Question Details**: View full question text and metadata
 - **Remove Bookmarks**: Manage saved questions
 
 ### 📄 Comprehensive Reports
-![Report](./img/report.png)
-
 - **Overall Performance Score**: Out of 10 rating
 - **Time Analytics**: 
   - Total interview duration
@@ -145,7 +143,7 @@
 
 1. **Clone the repository:**
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/vaibhav1881/PrepWise.git
 cd prepwise
 ```
 
@@ -174,72 +172,13 @@ EMAIL_PASS=your-app-password
 NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
 
-4. **Set up MongoDB:**
-   - Create a MongoDB Atlas account at https://cloud.mongodb.com
-   - Create a new cluster
-   - Add a database user (Database Access)
-   - Whitelist your IP (Network Access → Allow access from anywhere for development)
-   - Get your connection string
-
-5. **Get Groq API Key:**
-   - Visit https://console.groq.com/keys
-   - Create a free account
-   - Generate an API key
-
-6. **Configure Gmail (for email features):**
-   - Enable 2-Step Verification on your Google Account
-   - Generate an App Password at https://myaccount.google.com/apppasswords
-   - Use the app password in `EMAIL_PASS`
-
-7. **Run the development server:**
+4. **Run the development server:**
 ```bash
 npm run dev
 ```
 
-8. **Open your browser:**
+5. **Open your browser:**
 Navigate to http://localhost:3000
-
-## 🚀 Deployment
-
-### Deploy to Vercel
-
-1. **Push your code to GitHub**
-
-2. **Add environment variables to Vercel:**
-```bash
-vercel env add MONGODB_URI
-vercel env add GROQ_API_Key
-vercel env add JWT_SECRET
-vercel env add EMAIL_USER
-vercel env add EMAIL_PASS
-vercel env add NEXT_PUBLIC_API_URL
-```
-
-3. **Deploy:**
-```bash
-vercel --prod
-```
-
-## 📖 Usage Guide
-
-### For Interviewees
-
-1. **Sign Up**: Create an account with email verification
-2. **Browse Roles**: Explore public roles or create your own
-3. **Start Interview**: Select a role and begin
-4. **Answer Questions**: Type or voice record your responses
-5. **Get Feedback**: Receive detailed AI evaluation
-6. **View Report**: Access comprehensive performance analytics
-7. **Track Progress**: Monitor improvement in dashboard
-
-### For Role Creators
-
-1. **Create Role**: Define interview parameters
-2. **Select Skills**: Choose relevant technical skills
-3. **Set Difficulty**: Pick appropriate challenge level
-4. **Configure Questions**: Decide number of questions
-5. **Share**: Make public or keep private
-6. **Manage**: Edit visibility or delete roles
 
 ## 🎯 Scoring System
 
@@ -287,24 +226,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **Vercel**: For hosting and deployment
 - **MongoDB**: For database services
 - **Radix UI**: For accessible components
-
-## 📧 Support
-
-For support, email adarsh.224386101@vcet.edu.in or open an issue in the GitHub repository.
-
-## 🔮 Future Enhancements
-
-- [ ] Video interview support
-- [ ] Mock interview with AI interviewer
-- [ ] Peer-to-peer practice sessions
-- [ ] Interview scheduling
-- [ ] Integration with job boards
-- [ ] Mobile app (React Native)
-- [ ] Multi-language support
-- [ ] Company-specific interview prep
-- [ ] Resume analysis and tips
-- [ ] LinkedIn integration
-
----
-
-**Built with ❤️ using Next.js, MongoDB, and Groq AI**
