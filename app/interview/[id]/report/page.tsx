@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Header } from '@/components/header';
-import { Clock, Download, FileJson, TrendingUp, Pause } from 'lucide-react';
+import { Clock, Download, FileJson, TrendingUp, Pause, Terminal } from 'lucide-react';
 
 export default function InterviewReportPage() {
   const params = useParams();
@@ -28,10 +28,10 @@ export default function InterviewReportPage() {
     try {
       const response = await fetch(`/api/interview/get?interview_id=${interview_id}`);
       const data = await response.json();
-      
+
       if (response.ok) {
         setInterview(data.interview);
-        
+
         if (data.interview.final_report) {
           setReport(data.interview.final_report);
         }
@@ -55,7 +55,7 @@ export default function InterviewReportPage() {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         setReport(data.report);
         await loadInterview(); // Reload to get updated status
@@ -316,7 +316,7 @@ export default function InterviewReportPage() {
     <div class="stat-item">
       <strong>Avg/Question:</strong> ${formatTime(Math.floor(interview.total_time_seconds / interview.qa_history.length))}
     </div>`;
-    
+
       if (interview.pause_count > 0) {
         htmlContent += `
     <div class="stat-item">
@@ -326,7 +326,7 @@ export default function InterviewReportPage() {
       <strong>Pause Duration:</strong> ${formatTime(interview.pause_duration_seconds || 0)}
     </div>`;
       }
-      
+
       htmlContent += `
   </div>`;
     }
@@ -432,7 +432,7 @@ ${report.recommendations.map((r: string) => `    <li>${r}</li>`).join('\n')}
       </ul>` : ''}
     </div>`;
       }
-      
+
       htmlContent += `
   </div>`;
     });
@@ -450,7 +450,7 @@ ${report.recommendations.map((r: string) => `    <li>${r}</li>`).join('\n')}
     if (printWindow) {
       printWindow.document.write(htmlContent);
       printWindow.document.close();
-      
+
       // Wait for content to load, then print
       printWindow.onload = () => {
         printWindow.print();
@@ -462,7 +462,7 @@ ${report.recommendations.map((r: string) => `    <li>${r}</li>`).join('\n')}
     try {
       const response = await fetch(`/api/interview/${interview_id}/export`);
       const data = await response.json();
-      
+
       if (response.ok) {
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -503,7 +503,7 @@ ${report.recommendations.map((r: string) => `    <li>${r}</li>`).join('\n')}
               <CardHeader className="text-center">
                 <CardTitle className="text-3xl">Generate Final Report</CardTitle>
                 <CardDescription>
-                  You've completed {interview.qa_history.length} questions. 
+                  You've completed {interview.qa_history.length} questions.
                   Generate your comprehensive interview report now.
                 </CardDescription>
               </CardHeader>
@@ -532,7 +532,7 @@ ${report.recommendations.map((r: string) => `    <li>${r}</li>`).join('\n')}
   return (
     <div className="flex flex-col h-screen">
       <Header />
-      
+
       <main className="flex-1 overflow-auto">
         <div className="container max-w-5xl mx-auto py-8 px-4">
           <div className="space-y-6">
@@ -554,18 +554,18 @@ ${report.recommendations.map((r: string) => `    <li>${r}</li>`).join('\n')}
                     <div className="text-muted-foreground">Questions</div>
                   </div>
                 </div>
-                
+
                 <div className="text-center">
                   <Badge variant={
                     report.overall_performance >= 8 ? 'default' :
-                    report.overall_performance >= 6 ? 'secondary' :
-                    report.overall_performance >= 4 ? 'outline' :
-                    'destructive'
+                      report.overall_performance >= 6 ? 'secondary' :
+                        report.overall_performance >= 4 ? 'outline' :
+                          'destructive'
                   } className="text-base px-4 py-2">
                     {report.overall_performance >= 8 ? '✓ Excellent! Ready to go' :
-                     report.overall_performance >= 6 ? '↗ Good performance, minor improvements needed' :
-                     report.overall_performance >= 4 ? '⚠ Needs more practice' :
-                     '✗ Very low performance, significant improvement required'}
+                      report.overall_performance >= 6 ? '↗ Good performance, minor improvements needed' :
+                        report.overall_performance >= 4 ? '⚠ Needs more practice' :
+                          '✗ Very low performance, significant improvement required'}
                   </Badge>
                 </div>
               </CardContent>
@@ -748,12 +748,67 @@ ${report.recommendations.map((r: string) => `    <li>${r}</li>`).join('\n')}
                           <div className="text-2xl font-bold text-primary">{qa.evaluation.overall_score}/10</div>
                         </div>
                       </div>
-                      
-                      <div className="bg-muted rounded-lg p-4 mb-3">
-                        <div className="text-sm font-semibold mb-2">Your Answer:</div>
-                        <div className="text-sm">{qa.answer_text}</div>
-                      </div>
 
+                      <div className="bg-muted rounded-lg p-4 mb-3 overflow-hidden border">
+                        <div className="text-sm font-semibold mb-3 text-muted-foreground border-b pb-2">Your Answer</div>
+                        <div className="text-sm whitespace-pre-wrap font-sans">
+                          {(() => {
+                            const text = qa.answer_text || '';
+                            if (text.includes('[Code Submission')) {
+                              // Extract parts using regex for reliability
+                              const codeMatch = text.match(/\[Code Submission - (.*?)\]\s*\n+([\s\S]*?)(?=\n\n\[Execution Output\]|$)/);
+                              const outputMatch = text.match(/\[Execution Output\]\s*\n([\s\S]*?)(?=\n\n\[Explanation\]|$)/);
+                              const explanationMatch = text.match(/\[Explanation\]\s*\n([\s\S]*)/);
+
+                              return (
+                                <div className="flex flex-col gap-6">
+                                  {/* Code Block */}
+                                  {codeMatch && (
+                                    <div className="rounded-md overflow-hidden border bg-zinc-950 shadow-sm relative group">
+                                      <div className="flex items-center justify-between px-3 py-1.5 bg-zinc-900 border-b border-zinc-800">
+                                        <span className="text-xs font-mono text-zinc-400 lowercase">{codeMatch[1]}</span>
+                                        <div className="flex gap-1.5">
+                                          <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/50"></div>
+                                          <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
+                                          <div className="w-2.5 h-2.5 rounded-full bg-green-500/20 border border-green-500/50"></div>
+                                        </div>
+                                      </div>
+                                      <div className="p-4 overflow-x-auto">
+                                        <pre className="font-mono text-sm text-zinc-100 leading-relaxed"><code>{codeMatch[2].trim()}</code></pre>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Output Block */}
+                                  {outputMatch && (
+                                    <div className="text-sm">
+                                      <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+                                        <Terminal className="h-3 w-3" /> Execution Output
+                                      </div>
+                                      <div className="bg-zinc-900 text-zinc-300 p-3 rounded-md font-mono text-xs border border-zinc-800 shadow-inner">
+                                        {outputMatch[1].trim() || <span className="text-zinc-600 italic">No output</span>}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Explanation Block */}
+                                  {explanationMatch && (
+                                    <div className="text-sm">
+                                      <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Explanation</div>
+                                      <p className="leading-relaxed text-foreground">{explanationMatch[1].trim()}</p>
+                                    </div>
+                                  )}
+
+                                  {!codeMatch && !outputMatch && !explanationMatch && (
+                                    <div>{text}</div>
+                                  )}
+                                </div>
+                              );
+                            }
+                            return text;
+                          })()}
+                        </div>
+                      </div>
                       {qa.feedback && (
                         <details className="mt-3">
                           <summary className="cursor-pointer text-sm text-primary hover:underline">

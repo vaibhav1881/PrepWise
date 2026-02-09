@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const client = await clientPromise;
     const db = client.db();
 
-    let query: any = {};
+    const query: any = {};
 
     // Filter by category
     if (category === 'my' && user_id) {
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     const users = await db.collection('users')
       .find({ _id: { $in: userIds.map((id: any) => typeof id === 'string' ? new ObjectId(id) : id) } })
       .toArray();
-    
+
     const userMap = new Map(users.map((u: any) => [u._id.toString(), u.name || u.email]));
 
     roles = roles.map((role: any) => ({

@@ -44,16 +44,16 @@ export async function POST(request: NextRequest) {
     // Determine which question type to ask next
     const questionTypeTracker = interview.question_type_tracker || {};
     const askedTypeCount = interview.asked_type_count || {};
-    
+
     // Find the type with the most questions remaining
     let nextQuestionType = 'technical'; // default
     let maxRemaining = -1;
-    
+
     for (const type in questionTypeTracker) {
       const target = questionTypeTracker[type];
       const asked = askedTypeCount[type] || 0;
       const remaining = target - asked;
-      
+
       if (remaining > maxRemaining) {
         maxRemaining = remaining;
         nextQuestionType = type;
@@ -74,6 +74,39 @@ Adapt difficulty and focus based on candidate's performance.
 Sound natural and professional.
 Return ONLY valid JSON. No explanations.`;
 
+    // Determine strict 20/80 split for Coding/Theory
+    let technicalStyle = 'theory';
+
+    if (nextQuestionType === 'technical') {
+      const qaHistory = interview.qa_history || [];
+      let codingCount = 0;
+      qaHistory.forEach((qa: any) => {
+        if (qa.question_style === 'coding' || (qa.category === 'technical' && qa.question?.toLowerCase().includes('write code'))) {
+          codingCount++;
+        }
+      });
+
+      // 20% of total questions should be coding (min 1)
+      const totalQs = interview.role_block?.total_questions || 5;
+      const maxCoding = Math.max(1, Math.round(totalQs * 0.2));
+      const remainingQuestions = totalQs - currentQuestionNumber;
+      const questionsNeeded = Math.max(0, maxCoding - codingCount);
+
+      // Selection Logic:
+      // 1. If we already hit the max, force THEORY
+      if (codingCount >= maxCoding) {
+        technicalStyle = 'theory';
+      }
+      // 2. If we MUST ask a coding question to hit the target (remaining == needed), force CODING
+      else if (remainingQuestions <= questionsNeeded) {
+        technicalStyle = 'coding';
+      }
+      // 3. Otherwise, randomize (bias towards theory, but leave room for coding if needed)
+      else {
+        technicalStyle = Math.random() < 0.3 ? 'coding' : 'theory';
+      }
+    }
+
     const userPrompt = `Role Block:
 ${JSON.stringify(interview.role_block, null, 2)}
 
@@ -83,7 +116,13 @@ ${JSON.stringify(interview.memory_summary, null, 2)}${contextInfo}
 Current Question: ${currentQuestionNumber + 1} of ${totalQuestions}
 
 CRITICAL REQUIREMENT: The next question MUST be of category: "${nextQuestionType}"
-DO NOT generate questions from other categories like technical, hr, behavioral, or any other type.
+${nextQuestionType === 'technical' ? `
+SPECIFIC TECHNICAL STYLE: "${technicalStyle}"
+1. "theory": Ask a deep conceptual question based on the resume/role. User should explain verbally/text. No coding required.
+2. "coding": LeetCode-style algorithmic or practical coding challenge. User must write code in the editor. Focus on logic, data structures, or specific implementation using Standard Libraries only.
+` : ''}
+
+DO NOT generate questions from other categories.
 ONLY generate "${nextQuestionType}" category questions.
 
 Generate the next interview question.
@@ -94,21 +133,17 @@ Return JSON in this EXACT format:
   "question": "The actual question to ask",
   "skill": "The skill being tested",
   "difficulty": "easy|medium|hard",
-  "category": "${nextQuestionType}"
+  "category": "${nextQuestionType}",
+  "question_style": "${nextQuestionType === 'technical' ? technicalStyle : 'theory'}"
 }
 
 Guidelines:
-- ABSOLUTELY CRITICAL: The question category MUST be "${nextQuestionType}" - IGNORE all other categories
-- If "${nextQuestionType}" is "hr", ask ONLY HR questions about soft skills, teamwork, communication, conflict resolution, leadership
-- If "${nextQuestionType}" is "technical", ask ONLY technical questions about code, algorithms, system design, programming concepts
-- If "${nextQuestionType}" is "behavioral", ask ONLY behavioral questions about past experiences using STAR method
-- Build upon the previous answer and evaluation to create a follow-up or related question
-- If the candidate struggled, ask a simpler related question in the SAME category "${nextQuestionType}"
-- If the candidate excelled, ask a more challenging follow-up in the SAME category "${nextQuestionType}"
-- Create a natural conversation flow by connecting questions
-- If weak_skills exist, focus on those areas but KEEP the category as "${nextQuestionType}"
-- Adjust difficulty based on last_score and current difficulty
-- If needs_followup is true, ask a follow-up on the same topic
+- ABSOLUTELY CRITICAL: The question category MUST be "${nextQuestionType}"
+${nextQuestionType === 'technical' ? `- STRICTLY follow the "${technicalStyle}" style.` : ''}
+- If "${technicalStyle}" is "coding", ensure the problem is solvable within the editor using Standard Libraries.
+- If "${nextQuestionType}" is "hr", ask ONLY HR questions about soft skills.
+- If "${nextQuestionType}" is "behavioral", ask ONLY behavioral questions (STAR method).
+- Build upon the previous answer and evaluation to create a flow.
 - Keep questions clear and specific`;
 
     const groqResponse = await chatWithGroq({
@@ -125,7 +160,7 @@ Guidelines:
     }
 
     const parseResult = parseJsonResponse<QuestionBlock>(groqResponse.content);
-    
+
     if (!parseResult.success || !parseResult.data) {
       console.error('[Question Generator] Failed to parse:', groqResponse.content);
       return NextResponse.json(
@@ -145,7 +180,7 @@ Guidelines:
     }
 
     // Update interview with current question and increment asked count for this type
-    const updateFields: any = { 
+    const updateFields: any = {
       current_question: questionBlock,
       updated_at: new Date(),
     };

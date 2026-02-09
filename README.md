@@ -55,6 +55,22 @@ graph TD
   - Track usage statistics
 - **Role Usage Counter**: See how many times a role has been used
 
+### 💻 Intelligent Code Sandbox
+- **Multi-Language Support**: Write and run code in JavaScript, Python, Java, C++, and Go
+- **Smart Templates**: Auto-loads boilerplate code for each language
+- **Execution Environment**: 
+  - Standard library support for algorithmic challenges
+  - Sandbox limitations detection (e.g. warning when importing missing modules)
+  - `Ctrl+Enter` shortcut for rapid testing
+- **LeetCode Style**: Dedicated UI for solving algorithmic problems
+
+### 🧠 Smart Assessment Logic
+- **Balanced Interview Structure**: 
+  - **80% Theory**: Deep conceptual questions to test understanding
+  - **20% Coding**: Targeted "LeetCode-style" coding challenges to test implementation
+- **Context-Aware Tabs**: Automatically switches between Text/Voice and Code tabs based on question type
+- **Strict Mode**: Coding environment only unlocks for relevant technical questions
+
 ### 💬 Interactive Interview Interface
 - **Voice Recording**: Record answers via microphone
 - **Text Input**: Type responses directly
