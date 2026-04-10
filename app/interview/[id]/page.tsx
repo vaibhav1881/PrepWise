@@ -222,13 +222,12 @@ export default function InterviewPage() {
 
     try {
       // Mock execute for now if API route not ready, or actual call
-      const response = await fetch('https://emkc.org/api/v2/piston/execute', {
+      const response = await fetch('/api/code/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           language,
-          version: '*',
-          files: [{ content: code }]
+          code
         })
       });
 
@@ -324,6 +323,20 @@ export default function InterviewPage() {
       setLoading(false);
     }
   };
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background p-4">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="text-lg">{error}</AlertDescription>
+          <Button variant="outline" className="mt-4 w-full" onClick={() => router.push('/dashboard')}>
+            Return to Dashboard
+          </Button>
+        </Alert>
+      </div>
+    );
+  }
 
   if (!interview) {
     return (

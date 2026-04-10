@@ -17,7 +17,6 @@ export default function CreateRolePage() {
   const [jobText, setJobText] = useState('');
   const [saveRole, setSaveRole] = useState(true);
   const [roleTitle, setRoleTitle] = useState('');
-  const [roleDescription, setRoleDescription] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
 
   // Resume Mode State
@@ -109,7 +108,6 @@ export default function CreateRolePage() {
             question_count: questionCount,
             save_role: saveRole,
             role_title: saveRole ? roleTitle : undefined,
-            role_description: saveRole ? roleDescription : undefined,
             visibility: saveRole ? visibility : undefined,
             user_id: user.id,
           }),
@@ -232,17 +230,6 @@ export default function CreateRolePage() {
                           onChange={(e) => setRoleTitle(e.target.value)}
                           className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent outline-none bg-background text-foreground placeholder:text-muted-foreground"
                           placeholder="E.g., Senior Full-Stack Developer Interview"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Description (Optional)</label>
-                        <textarea
-                          value={roleDescription}
-                          onChange={(e) => setRoleDescription(e.target.value)}
-                          className="w-full px-4 py-3 border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent outline-none resize-none bg-background text-foreground placeholder:text-muted-foreground"
-                          rows={2}
-                          placeholder="Brief description..."
                         />
                       </div>
 

@@ -11,53 +11,54 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Map common names to Piston language versions (approximate)
-        // Piston supports many, but let's stick to common ones for now.
-        // Versions can be omitted if the API auto-detects, but usually required.
-        // Actually, version is required. Let's fetch available runtimes first or hardcode common ones.
-        // For simplicity, we'll use "latest" logic or just hardcode a known good one.
-        // Piston API: POST https://emkc.org/api/v2/piston/execute
-
-        // Hardcoded versions for common languages (to avoid extra API call)
-        // Check https://emkc.org/api/v2/piston/runtimes for current list if needed.
+        // Map common names to Wandbox compilers
         const runtimes: Record<string, string> = {
-            javascript: '18.15.0',
-            typescript: '5.0.3',
-            python: '3.10.0',
-            java: '15.0.2',
-            c: '10.2.0',
-            cpp: '10.2.0',
-            go: '1.16.2',
-            rust: '1.68.2',
-            php: '8.2.3',
+            javascript: 'nodejs-20.17.0',
+            typescript: 'typescript-5.6.2',
+            python: 'cpython-3.14.0',
+            java: 'openjdk-jdk-22+36',
+            c: 'gcc-head-c',
+            cpp: 'gcc-head',
+            go: 'go-1.23.2',
+            rust: 'rust-1.82.0',
+            php: 'php-8.3.12',
         };
 
-        const version = runtimes[language] || '*';
+        const compiler = runtimes[language] || runtimes.python;
 
-        const response = await fetch('https://emkc.org/api/v2/piston/execute', {
+        const response = await fetch('https://wandbox.org/api/compile.json', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                language,
-                version,
-                files: [
-                    {
-                        content: code,
-                    },
-                ],
+                code,
+                compiler,
             }),
         });
 
-        const data = await response.json();
+        const rawData = await response.json();
 
         if (!response.ok) {
             return NextResponse.json(
-                { message: data.message || 'Execution failed' },
+                { message: rawData.message || 'Execution failed' },
                 { status: response.status }
             );
         }
+
+        // Map Wandbox response back to Piston-compatible format for UI
+        const stdout = rawData.program_output || rawData.compiler_output || '';
+        const stderr = rawData.program_error || rawData.compiler_error || '';
+        const output = rawData.program_message || rawData.compiler_message || [stdout, stderr].filter(Boolean).join('\n') || '';
+
+        const data = {
+            run: {
+                stdout,
+                stderr,
+                output,
+                code: rawData.status === '0' ? 0 : 1,
+            }
+        };
 
         // enhance error message for common issues
         // enhance error message for common issues

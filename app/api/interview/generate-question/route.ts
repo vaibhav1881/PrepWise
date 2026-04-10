@@ -119,7 +119,7 @@ CRITICAL REQUIREMENT: The next question MUST be of category: "${nextQuestionType
 ${nextQuestionType === 'technical' ? `
 SPECIFIC TECHNICAL STYLE: "${technicalStyle}"
 1. "theory": Ask a deep conceptual question based on the resume/role. User should explain verbally/text. No coding required.
-2. "coding": LeetCode-style algorithmic or practical coding challenge. User must write code in the editor. Focus on logic, data structures, or specific implementation using Standard Libraries only.
+2. "coding": LeetCode-style algorithmic or practical coding challenge. User must write code in the editor. Focus on logic, data structures and algorithms, or specific implementation using Standard Libraries only.
 ` : ''}
 
 DO NOT generate questions from other categories.
